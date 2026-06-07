@@ -7,6 +7,18 @@ import random, string, smtplib
 from email.mime.text import MIMEText
 
 # -------------------------
+# App Setup
+# -------------------------
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'yoursecret'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+
+db = SQLAlchemy(app)
+socketio = SocketIO(app)
+login_manager = LoginManager(app)
+login_manager.login_view = "login"
+
+# -------------------------
 # Helper Functions
 # -------------------------
 def generate_temp_password():
@@ -37,18 +49,6 @@ def send_temp_password_email(to_email, temp_password):
 
     except Exception:
         return "send_error"
-
-# -------------------------
-# App Setup
-# -------------------------
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'yoursecret'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-
-db = SQLAlchemy(app)
-socketio = SocketIO(app)
-login_manager = LoginManager(app)
-login_manager.login_view = "login"
 
 # -------------------------
 # No‑Cache Decorator
@@ -93,7 +93,7 @@ def load_user(user_id):
 @login_required
 @nocache
 def chat():
-    messages = Message.query.all()  # Load chat history
+    messages = Message.query.all()
     return render_template('chat.html', messages=messages)
 
 @app.route('/register', methods=['GET','POST'])
@@ -154,14 +154,12 @@ def login():
 
         entered = request.form['password']
 
-        # FIRST LOGIN WITH TEMP PASSWORD
         if user.temp_password and entered == user.temp_password:
             user.is_verified = True
             db.session.commit()
             login_user(user)
             return redirect(url_for('verify'))
 
-        # NORMAL LOGIN WITH REAL PASSWORD
         if user.password and check_password_hash(user.password, entered):
             login_user(user)
             return redirect(url_for('chat'))

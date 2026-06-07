@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <h2>Chat</h2>
+    <p>Logged in as: {{ current_user.username }}</p>
+    <a href="/logout">Logout</a>
+
+    <div id="messages" style="height:300px; overflow-y:auto; border:1px solid #ccc; padding:5px;"></div>
+
+    <input id="msg" placeholder="Type message...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const socket = io();
+        const username = "{{ current_user.username }}";
+
+        socket.on('receive_message', data => {
+            const box = document.getElementById("messages");
+            box.innerHTML += `<p><b>${data.username}:</b> ${data.text}</p>`;
+            box.scrollTop = box.scrollHeight;
+        });
+
+        function sendMessage() {
+            const text = document.getElementById("msg").value;
+            if (!text) return;
+            socket.emit('send_message', { username, text });
+            document.getElementById("msg").value = "";
+        }
+    </script>
+</body>
+</html>

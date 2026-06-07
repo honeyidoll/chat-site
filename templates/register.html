@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+</head>
+<body>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div style="background:#ffdddd; padding:10px; border-left:4px solid red; margin-bottom:15px;">
+      {% for msg in messages %}
+        <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<h2>Register</h2>
+
+<form action="/register" method="POST">
+    <input type="text" name="username" placeholder="Username" required><br><br>
+    <input type="email" name="email" placeholder="Email address" required><br><br>
+    <button type="submit">Register</button>
+</form>
+
+<br>
+<a href="/login">Back to login</a>
+
+</body>
+</html>
